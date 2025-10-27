@@ -114,4 +114,61 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // ======= NEW METHODS ADDED BELOW =======
+
+    String loginPayload;
+
+    @Given("I have a valid user credentials payload with username {string} and password {string}")
+    public void i_have_a_valid_user_credentials_payload_with_username_and_password(String username, String password) {
+        // Build payload using existing POJO or as JSON string
+        // If User POJO exists, use it, else use JSONObject
+        org.json.JSONObject payload = new org.json.JSONObject();
+        payload.put("userName", username);
+        payload.put("password", password);
+        // Store payload for use in When step
+        this.loginPayload = payload.toString();
+    }
+
+    @When("I send POST request to the login endpoint")
+    public void i_send_post_request_to_the_login_endpoint() {
+        // Use endpoint from config or test data
+        String endpoint = "/Account/v1/Authorized";
+        if (com.api.utils.ConfigReader.getProperty("loginEndpoint") != null) {
+            endpoint = com.api.utils.ConfigReader.getProperty("loginEndpoint");
+        }
+        response = io.restassured.RestAssured.given()
+                .baseUri(com.api.utils.ConfigReader.getProperty("baseUri"))
+                .header("Content-Type", "application/json")
+                .body(this.loginPayload)
+                .when()
+                .post(endpoint);
+    }
+
+    @And("the response body should indicate successful authentication")
+    public void the_response_body_should_indicate_successful_authentication() {
+        // For /Authorized endpoint, success is boolean true in body or empty body
+        String respBody = response.getBody().asString();
+        int status = response.getStatusCode();
+        // Acceptable: body is empty (""), body is "true", or body is {"authorized":true} (API dependent)
+        boolean isSuccess = false;
+        if (status == 200) {
+            if (respBody == null || respBody.trim().isEmpty()) {
+                isSuccess = true;
+            } else if (respBody.trim().equalsIgnoreCase("true")) {
+                isSuccess = true;
+            } else if (respBody.trim().equalsIgnoreCase("{\"authorized\":true}")) {
+                isSuccess = true;
+            } else {
+                // Try to parse as JSON
+                try {
+                    org.json.JSONObject obj = new org.json.JSONObject(respBody);
+                    if (obj.has("authorized") && obj.getBoolean("authorized")) {
+                        isSuccess = true;
+                    }
+                } catch (Exception ignore) {}
+            }
+        }
+        org.testng.Assert.assertTrue(isSuccess, "Response body did not indicate successful authentication. Actual: " + respBody);
+    }
 }

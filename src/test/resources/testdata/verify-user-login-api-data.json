@@ -1,0 +1,21 @@
+{
+  "testCaseId": "TCD_NFT_01_POS",
+  "testCaseName": "Valid user credentials",
+  "endpoint": "/Account/v1/Authorized",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "requestBody": {
+    "userName": "validUser01",
+    "password": "ValidPassw0rd!"
+  },
+  "expectedResponse": {
+    "statusCode": 200,
+    "body": ""
+  },
+  "category": "Functional Testing",
+  "subCategory": "Positive test case",
+  "description": "Check if the API successfully authorizes valid user credentials",
+  "notes": "Use a valid user that exists in the test environment. Response body may be empty or contain a success message per API spec."
+}
