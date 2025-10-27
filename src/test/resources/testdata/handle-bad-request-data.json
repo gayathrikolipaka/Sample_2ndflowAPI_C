@@ -1,0 +1,75 @@
+// Test data for: Handle Bad Request for Account Authorization API
+[
+  {
+    "testCaseId": "TCD_FT_12_ERR",
+    "scenario": "Malformed JSON: Missing closing brace",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": "{\"username\": \"testuser\", \"password\": \"Test@123\"", // Missing closing brace
+    "expectedResponse": {
+      "statusCode": 400,
+      "errorMessageContains": [
+        "Malformed request syntax",
+        "Bad Request",
+        "Unexpected end-of-input"
+      ]
+    }
+  },
+  {
+    "testCaseId": "TCD_FT_12_ERR",
+    "scenario": "Malformed JSON: Invalid property name",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": "{username: \"testuser\", password: \"Test@123\"}", // Unquoted property names
+    "expectedResponse": {
+      "statusCode": 400,
+      "errorMessageContains": [
+        "Malformed request syntax",
+        "Bad Request",
+        "Unrecognized token"
+      ]
+    }
+  },
+  {
+    "testCaseId": "TCD_FT_12_ERR",
+    "scenario": "Malformed JSON: Not a JSON at all",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": "username=testuser&password=Test@123", // Form data instead of JSON
+    "expectedResponse": {
+      "statusCode": 400,
+      "errorMessageContains": [
+        "Malformed request syntax",
+        "Bad Request",
+        "Cannot deserialize"
+      ]
+    }
+  },
+  {
+    "testCaseId": "TCD_FT_12_ERR",
+    "scenario": "Malformed JSON: Empty body",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": "", // Empty body
+    "expectedResponse": {
+      "statusCode": 400,
+      "errorMessageContains": [
+        "Malformed request syntax",
+        "Bad Request",
+        "No content to map"
+      ]
+    }
+  }
+]
