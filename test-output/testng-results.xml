@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results ignored="0" total="2" passed="0" failed="2" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2025-10-16T12:41:07 IST" name="Default suite" finished-at="2025-10-16T12:41:10 IST" duration-ms="2657">
+    <groups>
+      <group name="cucumber">
+        <method signature="AbstractTestNGCucumberTests.runScenario(io.cucumber.testng.PickleWrapper,io.cucumber.testng.FeatureWrapper)[pri:0, instance:com.api.runners.TestRunner@7bedc48a]" name="runScenario" class="io.cucumber.testng.AbstractTestNGCucumberTests"/>
+      </group> <!-- cucumber -->
+    </groups>
+    <test started-at="2025-10-16T12:41:07 IST" name="Default test" finished-at="2025-10-16T12:41:10 IST" duration-ms="2657">
+      <class name="com.api.runners.TestRunner">
+        <test-method is-config="true" signature="setUpClass(org.testng.ITestContext)[pri:0, instance:com.api.runners.TestRunner@7bedc48a]" started-at="2025-10-16T12:41:07 IST" name="setUpClass" finished-at="2025-10-16T12:41:07 IST" duration-ms="420" status="PASS">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA[org.testng.TestRunner@59845579]]>
+              </value>
+            </param>
+          </params>
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setUpClass -->
+        <test-method signature="runScenario(io.cucumber.testng.PickleWrapper,io.cucumber.testng.FeatureWrapper)[pri:0, instance:com.api.runners.TestRunner@7bedc48a]" started-at="2025-10-16T12:41:07 IST" name="runScenario" description="Runs Cucumber Scenarios" data-provider="scenarios" finished-at="2025-10-16T12:41:09 IST" duration-ms="1713" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA["Delete user by sending JSON body"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA["Delete user using JSON body"]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[expected [204] but found [403]]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: expected [204] but found [403]
+at org.testng.Assert.fail(Assert.java:111)
+at org.testng.Assert.failNotEquals(Assert.java:1578)
+at org.testng.Assert.assertEqualsImpl(Assert.java:150)
+at org.testng.Assert.assertEquals(Assert.java:132)
+at org.testng.Assert.assertEquals(Assert.java:644)
+at com.api.stepdefinitions.UserSteps.i_should_get_valid_response_with_status_code(UserSteps.java:52)
+at ✽.I should get valid response with status code "204"(file:///C:/Users/Chaitanya/Downloads/RestAssuredBDDFramework_JSON_Generic_Updated%20(1)/RestAssuredBDDFramework_WithJSON/src/test/resources/features/delete_user.feature:6)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- runScenario -->
+        <test-method signature="runScenario(io.cucumber.testng.PickleWrapper,io.cucumber.testng.FeatureWrapper)[pri:0, instance:com.api.runners.TestRunner@7bedc48a]" started-at="2025-10-16T12:41:09 IST" name="runScenario" description="Runs Cucumber Scenarios" data-provider="scenarios" finished-at="2025-10-16T12:41:10 IST" duration-ms="438" status="FAIL">
+          <params>
+            <param index="0">
+              <value>
+                <![CDATA["Delete user by sending JSON body"]]>
+              </value>
+            </param>
+            <param index="1">
+              <value>
+                <![CDATA["Delete user using JSON body"]]>
+              </value>
+            </param>
+          </params>
+          <exception class="java.lang.AssertionError">
+            <message>
+              <![CDATA[expected [204] but found [403]]]>
+            </message>
+            <full-stacktrace>
+              <![CDATA[java.lang.AssertionError: expected [204] but found [403]
+at org.testng.Assert.fail(Assert.java:111)
+at org.testng.Assert.failNotEquals(Assert.java:1578)
+at org.testng.Assert.assertEqualsImpl(Assert.java:150)
+at org.testng.Assert.assertEquals(Assert.java:132)
+at org.testng.Assert.assertEquals(Assert.java:644)
+at com.api.stepdefinitions.UserSteps.i_should_get_valid_response_with_status_code(UserSteps.java:52)
+at ✽.I should get valid response with status code "204"(file:///C:/Users/Chaitanya/Downloads/RestAssuredBDDFramework_JSON_Generic_Updated%20(1)/RestAssuredBDDFramework_WithJSON/src/test/resources/features/delete_user.feature:6)
+]]>
+            </full-stacktrace>
+          </exception> <!-- java.lang.AssertionError -->
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- runScenario -->
+        <test-method is-config="true" signature="tearDownClass()[pri:0, instance:com.api.runners.TestRunner@7bedc48a]" started-at="2025-10-16T12:41:10 IST" name="tearDownClass" finished-at="2025-10-16T12:41:10 IST" duration-ms="49" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- tearDownClass -->
+      </class> <!-- com.api.runners.TestRunner -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
