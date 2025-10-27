@@ -114,4 +114,79 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // ===================== NEWLY ADDED METHODS BELOW =====================
+
+    @Given("I have user credentials payload with username {string} and password {string}")
+    public void i_have_user_credentials_payload_with_username_and_password(String username, String password) {
+        // Build a JSON payload with potentially invalid datatypes
+        // The username and password may be numbers, booleans, null, or strings (from Examples table)
+        org.json.JSONObject payloadJson = new org.json.JSONObject();
+        // Handle 'null' string as actual null
+        if ("null".equals(username)) {
+            payloadJson.put("userName", org.json.JSONObject.NULL);
+        } else if (isBoolean(username)) {
+            payloadJson.put("userName", Boolean.parseBoolean(username));
+        } else if (isNumeric(username)) {
+            payloadJson.put("userName", Integer.parseInt(username));
+        } else {
+            // Remove quotes if present (from Examples table)
+            payloadJson.put("userName", stripQuotes(username));
+        }
+        if ("null".equals(password)) {
+            payloadJson.put("password", org.json.JSONObject.NULL);
+        } else if (isBoolean(password)) {
+            payloadJson.put("password", Boolean.parseBoolean(password));
+        } else if (isNumeric(password)) {
+            payloadJson.put("password", Integer.parseInt(password));
+        } else {
+            payloadJson.put("password", stripQuotes(password));
+        }
+        this.deletePayload = payloadJson.toString(); // Reuse deletePayload as generic payload holder
+    }
+
+    @When("I send POST request to check user credentials")
+    public void i_send_post_request_to_check_user_credentials() {
+        // Use REST Assured directly since endpoint is /Account/v1/Authorized
+        String baseUri = com.api.utils.ConfigReader.getProperty("baseUri");
+        String endpoint = "/Account/v1/Authorized";
+        response = io.restassured.RestAssured.given()
+                .baseUri(baseUri)
+                .header("Content-Type", "application/json")
+                .body(deletePayload)
+                .when()
+                .post(endpoint);
+    }
+
+    @And("the response should contain error message indicating invalid data type")
+    public void the_response_should_contain_error_message_indicating_invalid_data_type() {
+        String responseBody = response.asString();
+        // The actual error message may vary; check for common patterns
+        boolean hasTypeError = responseBody.contains("type") ||
+                               responseBody.toLowerCase().contains("invalid") ||
+                               responseBody.toLowerCase().contains("data type") ||
+                               responseBody.toLowerCase().contains("expected");
+        org.testng.Assert.assertTrue(hasTypeError,
+                "Expected error message about invalid data type, but got: " + responseBody);
+    }
+
+    // Helper methods for payload construction
+    private boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch(NumberFormatException e){
+            return false;
+        }
+    }
+    private boolean isBoolean(String str) {
+        return "true".equalsIgnoreCase(str) || "false".equalsIgnoreCase(str);
+    }
+    private String stripQuotes(String str) {
+        if (str == null) return null;
+        if (str.startsWith("\"") && str.endsWith("\"")) {
+            return str.substring(1, str.length() - 1);
+        }
+        return str;
+    }
 }
