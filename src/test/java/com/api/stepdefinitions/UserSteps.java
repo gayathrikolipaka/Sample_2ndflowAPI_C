@@ -114,4 +114,28 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // ====== NEWLY ADDED METHODS BELOW (per requirements) ======
+
+    @Given("I have an empty JSON payload for user authorization")
+    public void i_have_an_empty_json_payload_for_user_authorization() {
+        // Prepare an empty JSON object as payload
+        this.deletePayload = "{}";
+    }
+
+    @When("I send POST request to /Account/v1/Authorized endpoint")
+    public void i_send_post_request_to_account_v1_authorized_endpoint() {
+        // Use endpoints or RestAssured directly if endpoints class does not have this method
+        response = endpoints.authorizeUser(deletePayload);
+    }
+
+    @And("the response should contain validation error message for missing 'userName' and 'password'")
+    public void the_response_should_contain_validation_error_message_for_missing_userName_and_password() {
+        String responseBody = response.asString();
+        // Check for both 'userName' and 'password' missing validation messages
+        boolean hasUserNameError = responseBody.contains("userName");
+        boolean hasPasswordError = responseBody.contains("password");
+        Assert.assertTrue(hasUserNameError, "Response does not contain validation error for missing 'userName'");
+        Assert.assertTrue(hasPasswordError, "Response does not contain validation error for missing 'password'");
+    }
 }
