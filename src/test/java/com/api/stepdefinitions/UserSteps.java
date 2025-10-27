@@ -114,4 +114,42 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // ====== NEW METHODS ADDED BELOW AS PER NEW REQUIREMENTS ======
+
+    @Given("I have valid user credentials payload with username {string} and password {string}")
+    public void i_have_valid_user_credentials_payload_with_username_and_password(String username, String password) {
+        // Build the payload using the provided username and password, using a POJO or JSON as per framework
+        // If a User POJO exists, use it; else, use JSONObject
+        org.json.JSONObject credentialsPayload = new org.json.JSONObject();
+        credentialsPayload.put("userName", username);
+        credentialsPayload.put("password", password);
+        // Store the payload for use in the POST request
+        this.updatePayload = credentialsPayload.toString();
+    }
+
+    @When("I send POST request to authorize user")
+    public void i_send_post_request_to_authorize_user() {
+        // Use the endpoints class to send the POST request to /Account/v1/Authorized
+        // If UserEndpoints has a method, use it; else, use RestAssured directly
+        String baseUri = com.api.utils.ConfigReader.getProperty("baseUri");
+        String endpoint = "/Account/v1/Authorized";
+        response = io.restassured.RestAssured.given()
+                .baseUri(baseUri)
+                .header("Content-Type", "application/json")
+                .body(updatePayload)
+                .when()
+                .post(endpoint);
+    }
+
+    @And("the response body should contain a success message or be empty")
+    public void the_response_body_should_contain_a_success_message_or_be_empty() {
+        // Acceptable: empty body, or a body with a success message (implementation depends on API contract)
+        String body = response.getBody().asString();
+        // Accept both empty and a simple success message (e.g., true, "Authorized", etc.)
+        boolean isEmpty = body == null || body.trim().isEmpty();
+        boolean isSuccess = body.trim().equalsIgnoreCase("true") || body.toLowerCase().contains("authorized") || body.toLowerCase().contains("success");
+        org.testng.Assert.assertTrue(isEmpty || isSuccess,
+                "Response body is neither empty nor contains a success message. Actual: '" + body + "'");
+    }
 }
