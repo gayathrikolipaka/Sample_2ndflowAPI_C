@@ -114,4 +114,53 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // --- Supporting field for payload ---
+    private String authPayload;
+
+    // Step for: Given I have user credentials with username "<username>" and password "<password>"
+    @Given("I have user credentials with username {string} and password {string}")
+    public void i_have_user_credentials_with_username_and_password(String username, String password) {
+        // Prepare the payload using a POJO or JSON object
+        // Since no POJO exists, use JSONObject for now
+        org.json.JSONObject payloadObj = new org.json.JSONObject();
+        payloadObj.put("userName", username);
+        payloadObj.put("password", password);
+        // Store payload as a string for use in the When step
+        this.authPayload = payloadObj.toString();
+    }
+
+    // Step for: When I send POST request to /Account/v1/Authorized endpoint
+    @When("I send POST request to /Account/v1/Authorized endpoint")
+    public void i_send_post_request_to_account_v1_authorized_endpoint() {
+        // Use base URI from config if available, otherwise default
+        String baseUri = com.api.utils.ConfigReader.getProperty("baseUri");
+        if (baseUri == null || baseUri.isEmpty()) {
+            baseUri = "https://demoqa.com"; // fallback default if not set
+        }
+        response = io.restassured.RestAssured.given()
+                .baseUri(baseUri)
+                .header("Content-Type", "application/json")
+                .body(this.authPayload)
+                .when()
+                .post("/Account/v1/Authorized");
+    }
+
+    // Step for: And the response should indicate unauthorized access
+    @And("the response should indicate unauthorized access")
+    public void the_response_should_indicate_unauthorized_access() {
+        // For 401 Unauthorized, the response body may be empty or contain a message
+        // Assert status code is 401 (already checked in Then step, but double check for clarity)
+        org.testng.Assert.assertEquals(response.getStatusCode(), 401, "Expected 401 Unauthorized");
+        // Optionally, check for error message in response body
+        String responseBody = response.getBody().asString();
+        if (responseBody != null && !responseBody.trim().isEmpty()) {
+            // Some APIs return a message field
+            boolean containsUnauthorized = responseBody.toLowerCase().contains("unauthorized") ||
+                                            responseBody.toLowerCase().contains("invalid") ||
+                                            responseBody.toLowerCase().contains("not authorized");
+            org.testng.Assert.assertTrue(containsUnauthorized,
+                "Response body should indicate unauthorized access. Actual: " + responseBody);
+        }
+    }
 }
