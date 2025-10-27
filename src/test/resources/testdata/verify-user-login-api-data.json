@@ -1,0 +1,109 @@
+// Test data for: Valid user credentials (TCD_NFT_01_POS)
+[
+  {
+    "testCaseId": "TCD_NFT_01_POS",
+    "testCaseName": "Valid user credentials",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": {
+      "userName": "validUser01",
+      "password": "ValidPass@2024"
+    },
+    "expectedResponse": {
+      "statusCode": 200,
+      "body": {}
+    },
+    "description": "Check if the API successfully authorizes valid user credentials",
+    "category": "Functional Testing",
+    "subCategory": "Positive test case"
+  },
+  {
+    "testCaseId": "TCD_NFT_01_NEG_INVALID_USER",
+    "testCaseName": "Invalid user credentials - wrong username",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": {
+      "userName": "invalidUser",
+      "password": "ValidPass@2024"
+    },
+    "expectedResponse": {
+      "statusCode": 401,
+      "body": {
+        "message": "User not found!"
+      }
+    },
+    "description": "Check API response for invalid username",
+    "category": "Functional Testing",
+    "subCategory": "Negative test case"
+  },
+  {
+    "testCaseId": "TCD_NFT_01_NEG_INVALID_PASS",
+    "testCaseName": "Invalid user credentials - wrong password",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": {
+      "userName": "validUser01",
+      "password": "WrongPass!"
+    },
+    "expectedResponse": {
+      "statusCode": 401,
+      "body": {
+        "message": "Password incorrect!"
+      }
+    },
+    "description": "Check API response for invalid password",
+    "category": "Functional Testing",
+    "subCategory": "Negative test case"
+  },
+  {
+    "testCaseId": "TCD_NFT_01_NEG_EMPTY_FIELDS",
+    "testCaseName": "Empty username and password",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": {
+      "userName": "",
+      "password": ""
+    },
+    "expectedResponse": {
+      "statusCode": 400,
+      "body": {
+        "message": "UserName and Password required."
+      }
+    },
+    "description": "Check API response for empty credentials",
+    "category": "Functional Testing",
+    "subCategory": "Negative test case"
+  },
+  {
+    "testCaseId": "TCD_NFT_01_NEG_BOUNDARY_USER",
+    "testCaseName": "Boundary test - max length username",
+    "endpoint": "/Account/v1/Authorized",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "requestBody": {
+      "userName": "user_max_length_12345678901234567890",
+      "password": "ValidPass@2024"
+    },
+    "expectedResponse": {
+      "statusCode": 200,
+      "body": {}
+    },
+    "description": "Check API response for boundary username length",
+    "category": "Functional Testing",
+    "subCategory": "Boundary test case"
+  }
+]
