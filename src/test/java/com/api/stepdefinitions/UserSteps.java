@@ -114,4 +114,37 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // --- NEW METHODS ADDED BELOW ---
+
+    @Given("I have user credentials payload with username {string} and missing password")
+    public void i_have_user_credentials_payload_with_username_and_missing_password(String username) {
+        // Build payload with username only, missing password
+        org.json.JSONObject payload = new org.json.JSONObject();
+        payload.put("userName", username);
+        // Intentionally omit password field for negative test
+        this.deletePayload = payload.toString(); // Reuse field for payload storage
+    }
+
+    @When("I send POST request to authorize user")
+    public void i_send_post_request_to_authorize_user() {
+        // Use the base URI from config if available
+        String baseUri = com.api.utils.ConfigReader.getProperty("baseUri");
+        String endpoint = "/Account/v1/Authorized";
+        response = io.restassured.RestAssured.given()
+                .baseUri(baseUri)
+                .header("Content-Type", "application/json")
+                .body(deletePayload)
+                .when()
+                .post(endpoint);
+    }
+
+    @And("the response should contain error message {string}")
+    public void the_response_should_contain_error_message(String errorMessage) {
+        String actualError = response.jsonPath().getString("message");
+        org.testng.Assert.assertTrue(
+            actualError != null && actualError.toLowerCase().contains(errorMessage.toLowerCase()),
+            "Expected error message to contain: '" + errorMessage + "' but was: '" + actualError + "'"
+        );
+    }
 }
