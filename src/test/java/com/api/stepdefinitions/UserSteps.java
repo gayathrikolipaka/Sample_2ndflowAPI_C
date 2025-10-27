@@ -114,4 +114,47 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // ===================== NEWLY ADDED METHODS BELOW =====================
+
+    JSONObject loginPayload;
+
+    @Given("I have valid user credentials with username {string} and password {string}")
+    public void i_have_valid_user_credentials_with_username_and_password(String username, String password) {
+        // Store credentials for use in the request
+        // You can extend this to use a POJO if needed
+        this.loginPayload = new org.json.JSONObject();
+        loginPayload.put("userName", username);
+        loginPayload.put("password", password);
+    }
+
+    @When("I send POST request to login endpoint")
+    public void i_send_post_request_to_login_endpoint() {
+        // Use ConfigReader to get base URI and endpoint path
+        String baseUri = ConfigReader.getProperty("baseUri");
+        String endpoint = "/Account/v1/Authorized";
+        
+        response = io.restassured.RestAssured.given()
+                .baseUri(baseUri)
+                .header("Content-Type", "application/json")
+                .body(loginPayload.toString())
+                .when()
+                .post(endpoint);
+    }
+
+    @Then("I should get valid response with status code {string}")
+    public void i_should_get_valid_response_with_status_code_login(String statusCode) {
+        System.out.println("Login Response: " + response.asPrettyString());
+        System.out.println("Status Code: " + response.getStatusCode());
+        org.testng.Assert.assertEquals(String.valueOf(response.getStatusCode()), statusCode, "Status code mismatch");
+    }
+
+    @And("the response body should indicate successful authentication")
+    public void the_response_body_should_indicate_successful_authentication() {
+        // For /Account/v1/Authorized, API may return true/false or empty body for 200 OK
+        String responseBody = response.getBody().asString().trim();
+        // Acceptable: empty body or 'true' (depending on API contract)
+        boolean isSuccess = responseBody.isEmpty() || responseBody.equalsIgnoreCase("true");
+        org.testng.Assert.assertTrue(isSuccess, "Authentication not successful. Body: " + responseBody);
+    }
 }
