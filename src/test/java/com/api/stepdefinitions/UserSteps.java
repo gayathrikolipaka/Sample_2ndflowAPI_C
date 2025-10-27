@@ -114,4 +114,38 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // ====== NEWLY ADDED METHODS BELOW ======
+
+    @Given("I have user login payload with username {string} and password {string}")
+    public void i_have_user_login_payload_with_username_and_password(String username, String password) {
+        // Prepare login payload using POJO or JSON as per framework conventions
+        // No POJO exists, so use JSON object for payload
+        org.json.JSONObject loginPayload = new org.json.JSONObject();
+        loginPayload.put("userName", username);
+        loginPayload.put("password", password);
+        // Store payload for use in next step
+        this.updatePayload = loginPayload.toString(); // reusing updatePayload as temp storage
+    }
+
+    @When("I send POST request to authenticate user")
+    public void i_send_post_request_to_authenticate_user() {
+        // Send POST request to /Account/v1/Authorized endpoint
+        String baseUri = com.api.utils.ConfigReader.getProperty("baseURI");
+        String endpoint = "/Account/v1/Authorized";
+        response = io.restassured.RestAssured.given()
+                .baseUri(baseUri)
+                .header("Content-Type", "application/json")
+                .body(updatePayload)
+                .when()
+                .post(endpoint);
+    }
+
+    @And("the response body should be an empty JSON object")
+    public void the_response_body_should_be_an_empty_json_object() {
+        String responseBody = response.getBody().asString().trim();
+        // Accept both {} and { } as empty JSON object
+        boolean isEmptyJson = "{}".equals(responseBody) || "{ }".equals(responseBody);
+        org.testng.Assert.assertTrue(isEmptyJson, "Expected empty JSON object but got: " + responseBody);
+    }
 }
