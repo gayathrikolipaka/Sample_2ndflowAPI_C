@@ -114,4 +114,41 @@ public class UserSteps {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
     }
+
+    // ====== NEW METHODS ADDED BELOW AS PER NEW REQUIREMENTS ======
+
+    @Given("I have an invalid JSON payload for user creation")
+    public void i_have_an_invalid_json_payload_for_user_creation() {
+        // Example of invalid JSON (missing closing brace, or malformed structure)
+        // Ideally, load from test data file if available
+        // For demo, set a clearly invalid JSON string
+        this.updatePayload = "{\"userName\": \"testuser\", \"password\": \"pass123"; // Missing closing quotes and brace
+    }
+
+    @When("I send POST request to create user with invalid JSON")
+    public void i_send_post_request_to_create_user_with_invalid_json() {
+        // Use endpoints.createUser but with invalid payload
+        response = endpoints.createUser(updatePayload);
+    }
+
+    @Then("I should get valid response with status code {string}")
+    public void i_should_get_valid_response_with_status_code_invalid_json(String statusCode) {
+        System.out.println("Response: " + response.asPrettyString());
+        System.out.println("Status Code: " + response.getStatusCode());
+        org.testng.Assert.assertEquals(response.getStatusCode(), Integer.parseInt(statusCode),
+                "Expected status code " + statusCode + " but got " + response.getStatusCode());
+    }
+
+    @And("the response should indicate a bad request due to invalid JSON format")
+    public void the_response_should_indicate_a_bad_request_due_to_invalid_json_format() {
+        // Check for error message or content type indicating invalid JSON
+        String responseBody = response.asString();
+        // Typical error messages for bad JSON; adjust as per actual API contract
+        boolean hasInvalidJsonMessage = responseBody.toLowerCase().contains("invalid json")
+                || responseBody.toLowerCase().contains("malformed")
+                || responseBody.toLowerCase().contains("parse error")
+                || responseBody.toLowerCase().contains("bad request");
+        org.testng.Assert.assertTrue(hasInvalidJsonMessage,
+                "Response body does not indicate invalid JSON format. Actual: " + responseBody);
+    }
 }
