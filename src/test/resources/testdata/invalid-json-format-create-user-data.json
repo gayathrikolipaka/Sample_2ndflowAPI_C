@@ -1,0 +1,38 @@
+{
+  "testCaseId": "TCD_FT_25_NEG",
+  "name": "Invalid JSON Format",
+  "endpoint": "/Account/v1/User",
+  "method": "POST",
+  "headers": {
+    "Content-Type": "application/json"
+  },
+  "invalidRequestBodies": [
+    {
+      "description": "Missing closing brace",
+      "payload": "{\"userName\": \"testuser\", \"password\": \"Test@1234\""
+    },
+    {
+      "description": "Unquoted property name",
+      "payload": "{userName: \"testuser\", password: \"Test@1234\"}"
+    },
+    {
+      "description": "Trailing comma",
+      "payload": "{\"userName\": \"testuser\", \"password\": \"Test@1234\",}"
+    },
+    {
+      "description": "Completely malformed JSON",
+      "payload": "userName=\"testuser\"&password=\"Test@1234\""
+    }
+  ],
+  "expectedResponse": {
+    "statusCode": 400,
+    "bodyContains": [
+      "Bad Request",
+      "invalid JSON",
+      "error"
+    ]
+  },
+  "category": "Functional Testing",
+  "subCategory": "Negative test case",
+  "testDescription": "Attempt to create a new user with an invalid JSON format in the request body. Expect 400 Bad Request."
+}

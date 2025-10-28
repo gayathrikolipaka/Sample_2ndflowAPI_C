@@ -11,6 +11,13 @@ import io.cucumber.java.en.*;
 import io.restassured.response.Response;
 import org.testng.Assert;
 
+// New imports for additional functionality
+import io.restassured.RestAssured;
+import io.restassured.specification.RequestSpecification;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.IOException;
+
 public class UserSteps {
 
     Response response;
@@ -23,6 +30,10 @@ public class UserSteps {
     String updatePayload;
     // Ideally, fetch this from config/properties file
 //    private final String apiKey = ConfigReader.getProperty("apiKey");
+
+    // New fields for invalid JSON payload testing
+    String invalidJsonPayload;
+    RequestSpecification request;
 
     @Given("I have user details payload with name {string} and job {string}")
     public void i_have_user_details_payload_with_name_and_job(String name, String job) {
@@ -113,5 +124,52 @@ public class UserSteps {
     public void the_list_page_should_be(Integer page) {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
+    }
+
+    // =======================
+    // New Step Definitions
+    // =======================
+
+    @Given("I have an invalid JSON payload for creating a user")
+    public void i_have_an_invalid_json_payload_for_creating_a_user() {
+        // Load invalid JSON from test data file
+        try {
+            // The test data file should contain an invalid JSON string (e.g., missing closing brace)
+            String testDataPath = "src/test/resources/testdata/invalid-json-format-create-user-data.json";
+            String fileContent = new String(Files.readAllBytes(Paths.get(testDataPath)));
+            // For this negative test, we deliberately break the JSON (simulate invalid JSON)
+            // For example, remove the last closing brace
+            int lastBrace = fileContent.lastIndexOf('}');
+            if (lastBrace > 0) {
+                invalidJsonPayload = fileContent.substring(0, lastBrace); // Remove closing brace
+            } else {
+                invalidJsonPayload = fileContent; // fallback, may already be invalid
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to load invalid JSON test data", e);
+        }
+        request = RestAssured.given()
+                .baseUri(ConfigReader.getProperty("baseUrl"))
+                .basePath("/Account/v1/User")
+                .header("Content-Type", "application/json");
+    }
+
+    @When("I send POST request to create user with invalid JSON")
+    public void i_send_post_request_to_create_user_with_invalid_json() {
+        response = request.body(invalidJsonPayload)
+                .when()
+                .post();
+    }
+
+    @And("the response should indicate a bad request due to invalid JSON format")
+    public void the_response_should_indicate_a_bad_request_due_to_invalid_json_format() {
+        // Typically, the response body will contain an error message about invalid JSON
+        String responseBody = response.asString();
+        Assert.assertTrue(
+            responseBody.toLowerCase().contains("invalid") ||
+            responseBody.toLowerCase().contains("json") ||
+            responseBody.toLowerCase().contains("bad request"),
+            "Expected error message about invalid JSON, but got: " + responseBody
+        );
     }
 }
