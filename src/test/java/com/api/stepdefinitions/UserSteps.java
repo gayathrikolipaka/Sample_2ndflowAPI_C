@@ -11,6 +11,13 @@ import io.cucumber.java.en.*;
 import io.restassured.response.Response;
 import org.testng.Assert;
 
+// Additional imports for new functionality
+import io.restassured.RestAssured;
+import io.restassured.specification.RequestSpecification;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.io.IOException;
+
 public class UserSteps {
 
     Response response;
@@ -113,5 +120,62 @@ public class UserSteps {
     public void the_list_page_should_be(Integer page) {
         Integer returned = JsonUtils.getInt(response, "page");
         Assert.assertEquals(returned, page);
+    }
+
+    // =========================
+    // New fields for invalid JSON scenario
+    // =========================
+    String invalidJsonPayload;
+    Response invalidJsonResponse;
+
+    @Given("I have an invalid JSON payload for user creation")
+    public void i_have_an_invalid_json_payload_for_user_creation() {
+        // Load invalid JSON from test data file
+        try {
+            String testDataPath = "src/test/resources/testdata/invalid-json-format-data.json";
+            String fileContent = new String(Files.readAllBytes(Paths.get(testDataPath)));
+            // For this test, let's assume the invalid JSON is the first object's 'invalidPayload' field
+            // e.g., [{..., "invalidPayload": "{\"userName\": \"test, \"password\": \"1234\"}"}]
+            // We'll extract it manually for now (ideally, parse JSON, but keep it simple here)
+            int idx = fileContent.indexOf("invalidPayload");
+            if (idx >= 0) {
+                int start = fileContent.indexOf('"', idx + 16) + 1;
+                int end = fileContent.indexOf('"', start);
+                invalidJsonPayload = fileContent.substring(start, end).replace("\\\"", "\"");
+            } else {
+                // Fallback to a known invalid JSON string
+                invalidJsonPayload = "{\"userName\": \"test, \"password\": \"1234\"}"; // missing closing quote for userName
+            }
+        } catch (IOException e) {
+            // Fallback to a known invalid JSON string
+            invalidJsonPayload = "{\"userName\": \"test, \"password\": \"1234\"}";
+        }
+    }
+
+    @When("I send POST request to create user with invalid JSON")
+    public void i_send_post_request_to_create_user_with_invalid_json() {
+        String baseUri = ConfigReader.getProperty("baseUri");
+        RequestSpecification request = RestAssured.given()
+                .baseUri(baseUri)
+                .basePath("/Account/v1/User")
+                .header("Content-Type", "application/json")
+                .body(invalidJsonPayload);
+        invalidJsonResponse = request.post();
+    }
+
+    @Then("I should get valid response with status code \"400\"")
+    public void i_should_get_valid_response_with_status_code_400() {
+        System.out.println("Response: " + invalidJsonResponse.asPrettyString());
+        Assert.assertEquals(invalidJsonResponse.getStatusCode(), 400, "Expected 400 Bad Request for invalid JSON");
+    }
+
+    @And("the response should indicate a bad request due to invalid JSON format")
+    public void the_response_should_indicate_a_bad_request_due_to_invalid_json_format() {
+        String responseBody = invalidJsonResponse.asString();
+        // Check for typical error message or indication of invalid JSON
+        boolean hasInvalidJsonMsg = responseBody.toLowerCase().contains("invalid") ||
+                                    responseBody.toLowerCase().contains("json") ||
+                                    responseBody.toLowerCase().contains("bad request");
+        Assert.assertTrue(hasInvalidJsonMsg, "Response should indicate invalid JSON format or bad request. Actual: " + responseBody);
     }
 }
