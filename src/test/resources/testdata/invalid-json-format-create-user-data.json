@@ -1,0 +1,79 @@
+// Test data for: TCD_FT_25_NEG - Invalid JSON Format (Create User API)
+[
+  {
+    "testCaseId": "TCD_FT_25_NEG",
+    "name": "Invalid JSON Format - Missing Closing Brace",
+    "endpoint": "/Account/v1/User",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "invalidRequestBody": "{\n  \"userName\": \"badjsonuser\",\n  \"password\": \"Password@123\"\n // missing closing brace",
+    "expectedResponse": {
+      "statusCode": 400,
+      "errorMessageContains": [
+        "Bad Request",
+        "invalid JSON",
+        "malformed"
+      ]
+    },
+    "description": "Missing closing brace in JSON payload. Should trigger 400 Bad Request."
+  },
+  {
+    "testCaseId": "TCD_FT_25_NEG",
+    "name": "Invalid JSON Format - Trailing Comma",
+    "endpoint": "/Account/v1/User",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "invalidRequestBody": "{\n  \"userName\": \"badjsonuser2\",\n  \"password\": \"Password@123\",\n}",
+    "expectedResponse": {
+      "statusCode": 400,
+      "errorMessageContains": [
+        "Bad Request",
+        "invalid JSON",
+        "malformed"
+      ]
+    },
+    "description": "Trailing comma in JSON object. Should trigger 400 Bad Request."
+  },
+  {
+    "testCaseId": "TCD_FT_25_NEG",
+    "name": "Invalid JSON Format - Unquoted Property Name",
+    "endpoint": "/Account/v1/User",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "invalidRequestBody": "{\n  userName: \"badjsonuser3\",\n  \"password\": \"Password@123\"\n}",
+    "expectedResponse": {
+      "statusCode": 400,
+      "errorMessageContains": [
+        "Bad Request",
+        "invalid JSON",
+        "malformed"
+      ]
+    },
+    "description": "Unquoted property name in JSON. Should trigger 400 Bad Request."
+  },
+  {
+    "testCaseId": "TCD_FT_25_NEG",
+    "name": "Invalid JSON Format - Not JSON At All",
+    "endpoint": "/Account/v1/User",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "invalidRequestBody": "username=badjsonuser4&password=Password@123",
+    "expectedResponse": {
+      "statusCode": 400,
+      "errorMessageContains": [
+        "Bad Request",
+        "invalid JSON",
+        "malformed"
+      ]
+    },
+    "description": "Payload is not JSON at all. Should trigger 400 Bad Request."
+  }
+]
